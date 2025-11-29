@@ -1,5 +1,3 @@
-"""Setup configuration for JHA package."""
-
 from setuptools import setup, find_packages
 
 with open("README.md", "r", encoding="utf-8") as fh:
@@ -8,11 +6,11 @@ with open("README.md", "r", encoding="utf-8") as fh:
 setup(
     name="jha",
     version="1.0.0",
-    author="Your Name",
+    author="Amarjit Jha",
     description="JHA - Just Help Assistant. LLM-powered CLI command discovery.",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/jha",
+    url="https://github.com/jhaspider/jha-cli",
     packages=find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",

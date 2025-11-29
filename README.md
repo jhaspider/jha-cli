@@ -101,11 +101,6 @@ jha-cli/
 └── README.md
 ```
 
-### Running locally
-```bash
-python -m jha "Your query here"
-```
-
 ## Contributing
 
 Feel free to submit issues and enhancement requests!
