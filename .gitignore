@@ -1,0 +1,25 @@
+# Ignore virtual environment directories
+venv/
+
+# Ignore OpenAI API key files
+open-ai.txt
+
+# Ignore Python cache files
+__pycache__/
+*.py[cod]
+
+# Ignore egg-info directories
+jha.egg-info/
+
+# Ignore local configuration files
+*.local
+
+# Ignore history and config files
+.jha/
+
+# Ignore temporary files
+*.tmp
+*.log
+*.bak
+*.swp
+.DS_Store
