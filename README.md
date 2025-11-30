@@ -11,7 +11,7 @@ A powerful LLM-based CLI tool that helps you find and execute the right commands
 - Query for suitable commands using natural language
 - Get explanations for complex commands
 - Support for multiple shells (bash, zsh, cmd, powershell)
-- Command history tracking for quick re-execution
+- Command history tracking for quick re-execution or recall
 
 🔧 **Configuration Management**
 - Simple config command to set OpenAI API key
@@ -28,7 +28,7 @@ jha --help
 
 # Setup your API key, MODEL & Shell
 jha config set OPENAI_KEY=sk-xxx-yyy-zzz #Acquire & Set your OpenAI Key
-jha config set MODEL=gpt-5-nano # Set your preferred model
+jha config set MODEL=gpt-4o-mini # Set your preferred model
 jha config set SHELL=bash # Set the bash you are working on
 
 # Find a command
