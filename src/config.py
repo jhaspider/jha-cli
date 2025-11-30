@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 from typing import Optional
 import click
+from .utils import (display_warning, display_success, display_error)
 
 
 class Config:
@@ -14,7 +15,7 @@ class Config:
     # Default values
     DEFAULTS = {
         "OPENAI_KEY": "",
-        "MODEL": "gpt-5-nano",
+        "MODEL": "gpt-4o-mini",
         "SHELL": "bash",
     }
     
@@ -50,23 +51,15 @@ class Config:
         
         # Validation
         if key == "OPENAI_KEY" and not value.startswith("sk-"):
-            click.echo(click.style(
-                "Warning: OpenAI API keys typically start with 'sk-'", fg="yellow"
-            ))
+            click.echo(display_warning("Warning: OpenAI API keys typically start with 'sk-'"))
         
         config[key] = value
         self.save(config)
-        click.echo(click.style(
-            f"✓ {key} set successfully",
-            fg="green"
-        ))
+        click.echo(display_success(f"{key} set successfully"))
     
     def clear(self) -> None:
         self.save(self.DEFAULTS.copy())
-        click.echo(click.style(
-            "✓ Configuration cleared",
-            fg="green"
-        ))
+        click.echo(display_success("Configuration cleared"))
     
     def show(self) -> None:
         config = self.load()

@@ -62,6 +62,9 @@ def display_success(message: str) -> str:
 def display_error(message: str) -> str:
     return click.style(f"✗ {message}", fg="red")
 
+def display_warning(message: str) -> str:
+    return click.style(f"✗ {message}", fg="yellow")
+
 def prompt_yes_no(message: str, default: bool = True) -> bool:
     default_str = "[Y/n]" if default else "[y/N]"
     prompt_text = f"{message} {default_str}: "
