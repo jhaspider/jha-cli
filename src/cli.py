@@ -109,7 +109,12 @@ def config_cmd(
                 raise typer.Exit(1)
             
             config.set(key, value)
-        
+            
+            if key == "MODEL":
+                valid_models = ["gpt-4.1-mini", "gpt-4.1-nano", "gpt-4o-mini"]
+                if value not in valid_models:
+                    click.echo(f"Recommended OpenAI models : {', '.join(valid_models)}")
+            
         elif action == "clear":
             if prompt_yes_no("Clear all configuration?", default=False):
                 config.clear()
@@ -194,16 +199,24 @@ def last():
         click.echo(display_error(f"Error: {str(e)}"), err=True)
         raise typer.Exit(1)
 
+
 @app.command(name="version", help="Show the version of JHA")
 def version():
     click.echo(click.style("v1.0.0", fg="cyan", bold=True))
     click.echo("JHA - Just Help Assistant. LLM-powered CLI command discovery.")
 
+
 def main():
+    
+    if len(sys.argv) < 2:
+        app()
+        return
+    
     first_arg = sys.argv[1]
     if(first_arg == "--help"):
         app()
         return
+    
     is_found = first_arg in [command.name for command in app.registered_commands]
     if is_found:
         app()

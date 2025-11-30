@@ -1,6 +1,7 @@
 import click
-from openai import OpenAI, APIConnectionError, AuthenticationError
+from openai import OpenAI, APIConnectionError, AuthenticationError, RateLimitError, APIStatusError
 from typing import Optional
+from .utils import display_error, display_command, display_success
 
 class LLMProvider:
     
@@ -24,7 +25,7 @@ class LLMProvider:
         try:
             self.client = OpenAI(api_key=self.api_key)
             # Test connection
-            # self.client.models.retrieve(self.model)
+            self.client.models.retrieve(self.model)
         except AuthenticationError:
             raise ValueError("Invalid OpenAI API key. Please check your configuration.")
         except APIConnectionError:
@@ -33,9 +34,6 @@ class LLMProvider:
             raise RuntimeError(f"Failed to initialize LLM: {str(e)}")
     
     def generate_command(self, query: str) -> str:
-        
-        if not self.client:
-            self._connect()
         
         shell_name = self.SHELL_DESCRIPTIONS.get(self.shell, self.shell)
         
@@ -52,37 +50,10 @@ class LLMProvider:
         
         user_message = f"For {shell_name}, provide a command to: {query}"
         
-        try:
-            response = self.client.responses.create(
-                model=self.model,
-                input=[
-                    {"role": "developer", "content": developer_message},
-                    {"role": "user", "content": user_message}
-                ],
-                text={
-                    "format": {
-                        "type": "text"
-                    },
-                    "verbosity": "low"
-                },
-                reasoning={
-                    "effort": "low"
-                },
-                store=False
-            )
-            
-            return response.output_text.strip()
-        
-        except AuthenticationError:
-            raise ValueError("OpenAI API authentication failed. Check your API key.")
-        except APIConnectionError:
-            raise ConnectionError("Failed to connect to OpenAI API.")
-        except Exception as e:
-            raise RuntimeError(f"LLM error: {str(e)}")
+        openai_response = self.openai_response(developer_message, user_message)
+        return openai_response
     
     def explain_command(self, command: str) -> str:
-        if not self.client:
-            self._connect()
         
         developer_message = """
         You are an expert command-line assistant helping developers find the right commands for their development tasks.
@@ -96,46 +67,50 @@ class LLMProvider:
         
         user_message = f"Explain this command in detail: {command}"
         
-        try:
-            response = self.client.responses.create(
-                model=self.model,
-                input=[
-                    {"role": "developer", "content": developer_message},
-                    {"role": "user", "content": user_message}
-                ],
-                text={
-                    "format": {
-                        "type": "text"
-                    },
-                    "verbosity": "low"
-                },
-                reasoning={
-                    "effort": "low"
-                },
-                store=False
-            )
-            
-            return response.output_text.strip()
+        openai_response = self.openai_response(developer_message, user_message)
+        return openai_response
         
+    def openai_response(self, developer_message: str, user_message: str, **options) -> str:
+        if not self.client:
+            self._connect()
         
-        
-        except AuthenticationError:
-            raise ValueError("OpenAI API authentication failed. Check your API key.")
-        except APIConnectionError:
-            raise ConnectionError("Failed to connect to OpenAI API.")
-        except Exception as e:
-            raise RuntimeError(f"LLM error: {str(e)}")
+        messages = [
+            {"role": "developer", "content": developer_message},
+            {"role": "user", "content": user_message},
+        ]
 
+        args = {
+            "model": self.model,
+            "input": messages,
+            "store": options.pop("store", False),
+            "max_output_tokens": options.pop("max_output_tokens", 300),
+            "text": {"format": {"type": "text"}},
+        }
+
+        args.update(options)
+
+        try:
+            response = self.client.responses.create(**args)
+            # print(f"Total tokens used: {response.usage.total_tokens}")
+            return response.output_text.strip()
+
+        except AuthenticationError as e:
+            raise ValueError("OpenAI API authentication failed. Check your API key.") from e
+        except RateLimitError as e:
+            raise RuntimeError("OpenAI rate limit hit. Slow down or upgrade your plan.") from e
+        except APIConnectionError as e:
+            raise ConnectionError("Failed to connect to OpenAI API.") from e
+        except APIStatusError as e:
+            raise RuntimeError(f"OpenAI API error {e.status_code}: {e.message}") from e
+        except Exception as e:
+            raise RuntimeError(f"LLM error: {str(e)}") from e
 
 def get_llm(config) -> LLMProvider:
-    """Get LLM provider instance with validation."""
     api_key = config.get("OPENAI_KEY")
-    
     if not api_key:
-        click.echo(click.style(
-            "❌ OpenAI API key not configured.\n"
-            "Set it using: jha config set OPENAI_KEY=your-key",
-            fg="red"
+        click.echo(display_error(
+            "OpenAI API key not configured.\n"
+            "Set it using: jha config set OPENAI_KEY=your-key"
         ))
         raise SystemExit(1)
     
@@ -145,11 +120,11 @@ def get_llm(config) -> LLMProvider:
     try:
         return LLMProvider(api_key, model, shell)
     except ValueError as e:
-        click.echo(click.style(f"❌ {str(e)}", fg="red"))
+        click.echo(click.style(f"✗ {str(e)}", fg="red"))
         raise SystemExit(1)
     except ConnectionError as e:
-        click.echo(click.style(f"❌ {str(e)}", fg="red"))
+        click.echo(click.style(f"✗ {str(e)}", fg="red"))
         raise SystemExit(1)
     except RuntimeError as e:
-        click.echo(click.style(f"❌ {str(e)}", fg="red"))
+        click.echo(click.style(f"✗ {str(e)}", fg="red"))
         raise SystemExit(1)
