@@ -51,31 +51,16 @@ def copy_to_clipboard(text: str) -> bool:
     return False
 
 
-def display_command(command: str) -> None:
-    click.echo(click.style(command, fg="cyan"))
-
-def display_explanation(explanation: str) -> None:
-    click.echo()
-    click.echo(explanation)
-    click.echo()
 
 
-def display_success(message: str) -> None:
-    click.echo()
-    click.echo(click.style(f"✓ {message}", fg="green"))
+def display_command(command: str) -> str:
+    return click.style(command, fg="cyan")
 
+def display_success(message: str) -> str:
+    return click.style(f"✓ {message}", fg="green")
 
-def display_error(message: str) -> None:
-    click.echo(click.style(f"✗ {message}", fg="red"), err=True)
-
-
-def display_warning(message: str) -> None:
-    click.echo(click.style(f"⚠️  {message}", fg="yellow"))
-
-
-def display_info(message: str) -> None:
-    click.echo(click.style(f"ℹ️  {message}", fg="blue"))
-
+def display_error(message: str) -> str:
+    return click.style(f"✗ {message}", fg="red")
 
 def prompt_yes_no(message: str, default: bool = True) -> bool:
     default_str = "[Y/n]" if default else "[y/N]"

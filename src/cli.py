@@ -8,8 +8,8 @@ from .config import config
 from .llm import get_llm
 from .history import history
 from .utils import (
-    display_command, display_explanation, display_success,
-    display_error, display_info, prompt_yes_no,
+    display_command, display_success,
+    display_error, prompt_yes_no,
     copy_to_clipboard
 )
 
@@ -32,19 +32,24 @@ def query(
         
         # Display the command
         click.echo("\033[F\033[K", nl=False)
-        display_command(command)
+        click.echo()
+        click.echo(display_command(command))
+        click.echo()
         
         # Add to history
         history.add(q, command)
+        click.echo(display_success("Command added to history. Hit 'jha history' to see past commands."))
         
         # Copy to clipboard
         if copy_to_clipboard(str(command)):
-            display_success("Command copied to clipboard. Press Ctrl+V to use it. jhax for detailed explanation.")
+            click.echo(display_success("Command copied to clipboard. Press Ctrl+V to use it"))
+            click.echo(display_success("Use 'jhax' to know more about the command"))
         else:
-            display_error("Failed to copy to clipboard")
-    
+            click.echo(display_error("Failed to copy to clipboard"), err=True)
+        click.echo()
+        
     except Exception as e:
-        display_error(f"Error: {str(e)}")
+        click.echo(display_error(f"Error: {str(e)}"), err=True )
         raise typer.Exit(1)
 
 
@@ -53,27 +58,31 @@ def explain(
     cmd: Optional[str] = typer.Argument(None, help="The command to explain")
 ):
     try:
-        # Handle ArgumentInfo explicitly
         if isinstance(cmd, typer.models.ArgumentInfo):
-            cmd = cmd.default  # Extract the default valu
+            cmd = cmd.default 
             
         if not cmd:
-            cmd = pyperclip.paste().strip()
-            if not cmd:
-                display_error("Clipboard is empty or does not contain a valid command.")
+            last_entry = history.get_last()
+        
+            if not last_entry:
+                click.echo(display_error("No previous command found."), err=True)
                 raise typer.Exit(1)
             
-        llm = get_llm(config)
-        
-        # Get explanation
-        explanation = llm.explain_command(cmd)
-        
-        # Display explanation
-        display_explanation(explanation)
+            cmd = last_entry.get("command")
+
+        if cmd:
+            click.echo()
+            click.echo(f"Explaining: {display_command(cmd)}")
+            llm = get_llm(config)
+            explanation = llm.explain_command(cmd)
+            click.echo(explanation)
+        else:
+            click.echo(display_error("No command provided to explain."), err=True)
+            raise typer.Exit(1)
+        click.echo()
     
     except Exception as e:
-        display_error(f"Error: {str(e)}")
-        raise typer.Exit(1)
+        click.echo(display_error(f"Error: {str(e)}"), err=True)
 
 
 @app.command(name="config", help="Manage JHA configuration")
@@ -87,7 +96,7 @@ def config_cmd(
         
         elif action == "set":
             if not param or "=" not in param:
-                display_error("Use format: jha config set KEY=VALUE")
+                click.echo(display_error("Use format: jha config set KEY=VALUE"), err=True)
                 raise typer.Exit(1)
             
             key, value = param.split("=", 1)
@@ -95,7 +104,7 @@ def config_cmd(
             value = value.strip()
             
             if key not in config.DEFAULTS:
-                display_error(f"Unknown config key: {key}")
+                click.echo(display_error(f"Unknown config key: {key}"), err=True)
                 click.echo(f"Available keys: {', '.join(config.DEFAULTS.keys())}")
                 raise typer.Exit(1)
             
@@ -108,12 +117,12 @@ def config_cmd(
                 click.echo("Cancelled.")
         
         else:
-            display_error(f"Unknown action: {action}")
+            click.echo(display_error(f"Unknown action: {action}"), err=True)
             click.echo("Available actions: show, set, clear")
             raise typer.Exit(1)
     
     except Exception as e:
-        display_error(f"Error: {str(e)}")
+        click.echo(display_error(f"Error: {str(e)}"), err=True)
         raise typer.Exit(1)
 
 
@@ -128,7 +137,7 @@ def history_cmd(
             entries = history.get_all(limit)
             
             if not entries:
-                display_info("No history yet.")
+                click.echo("No history yet.")
                 return
             
             click.echo()
@@ -139,22 +148,22 @@ def history_cmd(
                 command = entry.get("command", "")
                 
                 click.echo(f"{i}. [{timestamp}] {query}")
-                display_command(command)
+                click.echo(display_command(command))
                 click.echo()
         
         elif action == "clear":
             if prompt_yes_no("Clear all history?", default=False):
                 history.clear()
-                display_success("History cleared")
+                click.echo(("History cleared"))
             else:
                 click.echo("Cancelled.")
         
         else:
-            display_error(f"Unknown action: {action}")
+            click.echo(display_error(f"Unknown action: {action}"), err=True)
             raise typer.Exit(1)
     
     except Exception as e:
-        display_error(f"Error: {str(e)}")
+        click.echo(display_error(f"Error: {str(e)}"), err=True)
         raise typer.Exit(1)
 
 
@@ -164,28 +173,31 @@ def last():
         last_entry = history.get_last()
         
         if not last_entry:
-            display_error("No previous command found.")
+            click.echo(display_error("No previous command found."), err=True)
             raise typer.Exit(1)
         
         command = last_entry.get("command")
         query = last_entry.get("query")
-        click.echo(click.style(f"Query: {query}", fg="blue"))
-        display_command(command)
+        click.echo()
+        click.echo(f"Query: {query}")
+        click.echo(display_command(command))
         
-        if copy_to_clipboard(command):
-            display_success("Command copied to clipboard. Press Ctrl+V to use it. jhax for detailed explanation.")
+        # Copy to clipboard
+        if copy_to_clipboard(str(command)):
+            click.echo(display_success("Command copied to clipboard. Press Ctrl+V to use it"))
+            click.echo(display_success("Use 'jhax' for explanation."))
         else:
-            display_error("Failed to copy to clipboard")
+            click.echo(display_error("Failed to copy to clipboard"), err=True)
+        click.echo()
     
     except Exception as e:
-        display_error(f"Error: {str(e)}")
+        click.echo(display_error(f"Error: {str(e)}"), err=True)
         raise typer.Exit(1)
 
 @app.command(name="version", help="Show the version of JHA")
 def version():
     click.echo(click.style("v1.0.0", fg="cyan", bold=True))
     click.echo("JHA - Just Help Assistant. LLM-powered CLI command discovery.")
-
 
 def main():
     first_arg = sys.argv[1]
