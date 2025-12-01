@@ -1,58 +1,87 @@
 # JHA - Just Help Assistant
 
-For those - who still are not friend with CLI.
+If you prefer working in the terminal but sometimes fall short on remembering commands, this CLI tool can help.
+It’s also useful for anyone still getting comfortable with the command line.
 
-A powerful LLM-based CLI tool that helps you find and execute the right commands for your development workflows.
-
+It uses OpenAI models to interpret natural-language queries and suggest relevant shell commands.
 
 ## Features
 
-✨ **LLM-Powered Command Discovery**
 - Query for suitable commands using natural language
-- Get explanations for complex commands
-- Support for multiple shells (bash, zsh, cmd, powershell)
-- Command history tracking for quick re-execution or recall
-
-🔧 **Configuration Management**
-- Simple config command to set OpenAI API key
-- Choose your preferred LLM model
-- Specify your shell
+- Support for multiple shells (bash, zsh, cmd, PowerShell)
+- Get explanations for commands
+- Command history tracking for quick re-execution and recall
+- Option to jump to the last command from history
+- Simple config commands to set OPENAI_KEY, MODEL, and SHELL
 - Persistent configuration storage
-
-📋 **Usage Examples**
-
-```bash
-# Check Installation
-jha version
-jha --help
-
-# Setup your API key, MODEL & Shell
-jha config set OPENAI_KEY=sk-xxx-yyy-zzz #Acquire & Set your OpenAI Key
-jha config set MODEL=gpt-4o-mini # Set your preferred model
-jha config set SHELL=bash # Set the bash you are working on
-
-# Find a command
-jha "Move a folder with all its children to another location"
-
-# Get explanation for last command
-jhax
-
-# Get explanation for any command
-jha explain "<command-goes-here>"
-
-# See all historical commands
-jha history 
-jha history clear
-
-```
+- Searched command stored in clipboard for quick execution
 
 ## Installation
 
 ### Prerequisites
-- Python 3.8+
-- pip or poetry
+- Python 3.8 or higher
+- pip package manager
 
-### Development Setup
+### Install from PyPI
+```bash
+pip install jha-cli
+```
+
+### Alternative Installation (Windows)
+```bash
+pip install pipx
+python -m pipx ensurepath
+# Restart command prompt
+pipx install jha-cli
+```
+
+## Usage
+
+### Check Installation
+```bash
+jha
+jha version
+jha --help
+```
+
+### Initial Setup
+```bash
+# Set your OpenAI API key
+jha config set OPENAI_KEY=sk-your-api-key-here
+
+# Set preferred model (optional)
+jha config set MODEL=gpt-4o-mini
+
+# Set your shell (optional)
+jha config set SHELL=bash
+```
+
+### Basic Commands
+```bash
+# Generate a command from natural language
+jha "Move a folder with all its children to another location"
+
+# Explain what a command does
+jha explain "mv source_folder/ destination_folder/"
+
+# Get explanation for the last generated command
+jhax
+
+# View command history
+jha history
+
+# Show the last query and command
+jha last
+
+# Check version
+jha version
+```
+
+## Configuration
+The configuration file is stored at `~/.jha/config.json` and all historical command stored at `~/.jha/history.json`
+
+
+## Development Setup
 
 1. Clone/Download the project
 
@@ -72,17 +101,13 @@ pip install -r requirements.txt
 pip install -e .
 ```
 
-## Configuration
-
-Configuration is stored in `~/.jha/config.json`
-
-
 ## Architecture
 
-- **Typer**: CLI framework for argument parsing and command routing
-- **OpenAI Python SDK**: LLM integration
-- **Click**: Terminal formatting and colors
-- **JSONSchema**: Configuration management
+The project uses the following key dependencies:
+- **Typer**: CLI framework for command parsing and routing
+- **OpenAI Python SDK**: Integration with OpenAI's API
+- **Click & Rich**: Terminal formatting and enhanced output
+- **Pydantic**: Data validation and settings management
 
 ## Project Structure
 
@@ -96,14 +121,14 @@ jha-cli/
 │   ├── llm.py                # LLM integration
 │   ├── history.py            # Command history tracking
 │   └── utils.py              # Utility functions
-├── setup.py
-├── requirements.txt
+├── pyproject.toml            # Project configuration
+├── requirements.txt          # Dependencies
 └── README.md
 ```
 
 ## Contributing
 
-Feel free to submit issues and enhancement requests!
+Contributions are welcome! Please feel free to submit issues and pull requests on the [GitHub repository](https://github.com/jhaspider/jha-cli).
 
 ## License
 
