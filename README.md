@@ -1,4 +1,4 @@
-# JHA - Just Help Assistant
+# jha-cli : a CLI tool for just-in-time shell command discovery.
 
 If you prefer working in the terminal but sometimes fall short on remembering commands, this CLI tool can help.
 It’s also useful for anyone still getting comfortable with the command line.
