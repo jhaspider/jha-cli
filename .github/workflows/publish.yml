@@ -3,10 +3,16 @@ name: Publish to PyPI
 on:
   release:
     types: [published]
+  push:
+    branches:
+      - main
 
 jobs:
   publish:
     runs-on: ubuntu-latest
+
+    # Only run on releases or when pushing to main
+    if: github.event_name == 'release' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
 
     steps:
     - uses: actions/checkout@v4
