@@ -1,8 +1,6 @@
 import sys
 import typer
 import click
-import readline 
-import pyperclip
 from typing import Optional
 from .config import config
 from .llm import get_llm

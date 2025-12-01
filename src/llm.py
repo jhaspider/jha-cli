@@ -1,6 +1,5 @@
 import click
 from openai import OpenAI, APIConnectionError, AuthenticationError, RateLimitError, APIStatusError
-from typing import Optional
 from .utils import display_error, display_command, display_success
 
 class LLMProvider:

@@ -8,9 +8,6 @@ open-ai.txt
 __pycache__/
 *.py[cod]
 
-# Ignore egg-info directories
-jha.egg-info/
-
 # Ignore local configuration files
 *.local
 
@@ -23,3 +20,11 @@ jha.egg-info/
 *.bak
 *.swp
 .DS_Store
+
+publish.sh
+PyPI-Recovery-Codes.txt
+PUBLISHING_GUIDE.md
+
+dist/ 
+build/ 
+*.egg-info/
