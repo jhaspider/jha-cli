@@ -83,7 +83,7 @@ The configuration file is stored at `~/.jha/config.json` and all historical comm
 
 ## Development Setup
 
-1. Clone/Download the project
+1. Clone/Download the project: [https://github.com/jhaspider/jha-cli](https://github.com/jhaspider/jha-cli)
 
 2. Create virtual environment:
 ```bash
