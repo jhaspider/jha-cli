@@ -27,8 +27,8 @@ class LLMProvider:
             self.client.models.retrieve(self.model)
         except AuthenticationError:
             raise ValueError("Invalid OpenAI API key. Please check your configuration.")
-        except APIConnectionError:
-            raise ConnectionError("Failed to connect to OpenAI API.")
+        except APIConnectionError as e:
+            raise ConnectionError(f"Failed to connect to OpenAI API : {str(e)}")
         except Exception as e:
             raise RuntimeError(f"Failed to initialize LLM: {str(e)}")
     
