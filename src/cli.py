@@ -12,7 +12,7 @@ from .utils import (
 )
 
 app = typer.Typer(
-    help="JHA - Just Help Assistant. LLM-powered CLI command discovery.",
+    help="JHA - Just Hack Away. LLM-powered CLI command discovery without ever leaving your shell.",
     no_args_is_help=True
 )
 

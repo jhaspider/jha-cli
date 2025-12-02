@@ -1,4 +1,4 @@
-# jha-cli : a CLI tool for just-in-time shell command discovery.
+# JHA - Just Hack Away. LLM-powered CLI command discovery without ever leaving your shell.
 
 If you prefer working in the terminal but sometimes fall short on remembering commands, this CLI tool can help.
 It’s also useful for anyone still getting comfortable with the command line.
